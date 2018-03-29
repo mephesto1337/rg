@@ -10,6 +10,8 @@ SRC=$(wildcard src/*.c)
 OBJ=$(SRC:src/%.c=obj/%.o)
 BIN=rg
 
+_X := $(shell mkdir obj)
+
 DEBUG ?= 0
 
 ifneq ($(DEBUG), 0)
