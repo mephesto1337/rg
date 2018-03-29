@@ -43,12 +43,12 @@ void generic_search_gadgets_64b(const uint8_t *code, size_t size, size_t depth, 
 void print_gadgets(const cs_insn *instrs, size_t count, size_t offset, void *data) {
     const struct print_gadgets_args_s *args = (const struct print_gadgets_args_s *)data;
 
-    printf("%s%lx%s: ", args->colors->address, args->base_address + offset, PRINTF_COLOR_NONE);
+    printf("%s%lx%s: ", args->colors->address, args->base_address + offset, args->colors->no_colors);
     for ( size_t i = 0; i < count; i++ ) {
         if ( i > 0 ) {
             printf("; ");
         }
-        printf("%s%s%s %s%s%s", args->colors->mnemonic, instrs[i].mnemonic, PRINTF_COLOR_NONE, args->colors->op_str, instrs[i].op_str, PRINTF_COLOR_NONE);
+        printf("%s%s%s %s%s%s", args->colors->mnemonic, instrs[i].mnemonic, args->colors->no_colors, args->colors->op_str, instrs[i].op_str, args->colors->no_colors);
     }
     printf("\n");
 }

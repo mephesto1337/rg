@@ -20,6 +20,7 @@ struct gadget_color_s {
     const char *address;
     const char *mnemonic;
     const char *op_str;
+    const char *no_colors;
 };
 
 static const struct gadget_end_s gadget_ends[] = {
@@ -28,11 +29,13 @@ static const struct gadget_end_s gadget_ends[] = {
     { .mnemonic = "call",       .size = 5,  .previous = 0,  .match_size = 1,    .opcodes = { 0xe8 },        },
     { .mnemonic = "jmp",        .size = 5,  .previous = 0,  .match_size = 1,    .opcodes = { 0xe9 },        },
     { .mnemonic = "syscall",    .size = 2,  .previous = 0,  .match_size = 2,    .opcodes = { 0x0f, 0x05 }   },   
+    { .mnemonic = "call",       .size = 2,  .previous = 0,  .match_size = 1,    .opcodes = { 0xff },        },   
+    { .mnemonic = "call",       .size = 3,  .previous = 0,  .match_size = 2,    .opcodes = { 0x41, 0xff },  },   
 };
 
 static const struct gadget_color_s gadget_colors[] = {
-    { .address = PRINTF_COLOR_RED,  .mnemonic = PRINTF_COLOR_YELLOW,    .op_str = PRINTF_COLOR_WHITE    },
-    { .address = "",                .mnemonic = "",                     .op_str = ""                    },
+    { .address = PRINTF_COLOR_RED,  .mnemonic = PRINTF_COLOR_YELLOW,    .op_str = PRINTF_COLOR_WHITE,   .no_colors = PRINTF_COLOR_NONE  },
+    { .address = "",                .mnemonic = "",                     .op_str = "",                   .no_colors = ""                 },
 };
 
 typedef void (*found_gadget_callback_t)(const cs_insn *instrs, size_t count, size_t offset, void *data);

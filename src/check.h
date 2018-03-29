@@ -3,6 +3,7 @@
 
 #include <capstone/capstone.h>
 #include <errno.h>
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -20,6 +21,7 @@
 
 #define CHK(expr, is_error) \
     do { \
+        errno = 0; \
         if ( (expr) is_error ) { \
             perror("(%s) %s", #expr, #is_error); \
             goto fail; \
@@ -31,5 +33,6 @@
 #define CHK_NULL(expr)  CHK(expr, == NULL)
 #define CHK_MMAP(expr)  CHK(expr, == MAP_FAILED)
 #define CHK_CS(expr)    CHK(expr, != CS_ERR_OK)
+#define CHK_FALSE(expr) CHK(expr, == false)
 
 #endif // __CHECK_H__

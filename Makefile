@@ -1,16 +1,16 @@
 CC=gcc
-CPPFLAGS=-D_POSIX_C_SOURCE
+CPPFLAGS=-D_POSIX_C_SOURCE $(shell pkg-config --cflags r_bin r_util)
 CFLAGS=-W -Wall -Wextra -Wshadow -Werror -std=c99
 
 LD=gcc
 LDFLAGS=
-LIBS=-lcapstone
+LIBS=-lcapstone $(shell pkg-config --libs r_bin r_util)
 
 SRC=$(wildcard src/*.c)
 OBJ=$(SRC:src/%.c=obj/%.o)
 BIN=rg
 
-_X := $(shell mkdir obj)
+_X := $(shell mkdir -p obj)
 
 DEBUG ?= 0
 

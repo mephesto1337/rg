@@ -1,13 +1,14 @@
 #include <elf.h>
 #include <fcntl.h>
 #include <getopt.h>
+#include <libr/r_bin.h>
 #include <stdbool.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <sys/mman.h>
-#include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
 #include <unistd.h>
 
 #include "check.h"
@@ -50,14 +51,15 @@ const struct prog_option_s options[] = {
 int main(int argc, char *const argv[]) {
     struct stat st;
     int fd = -1;
-    void *addr = NULL;
+    void *addr = MAP_FAILED;
     void *start_addr = NULL; 
     const uint8_t *code = NULL;
     size_t code_size = 0;
-    const Elf64_Ehdr *ehdr = NULL;
-    const Elf64_Shdr *shdr = NULL;
-    size_t s_idx;
-    const char *shstrtab = NULL;
+    RBin *bin = NULL;
+    const RList *list = NULL;
+    const RListIter *iter = NULL;
+    const RBinSection *section = NULL;
+    const RBinInfo *info = NULL;
     search_and_print_gadgets_t search_and_print_gadgets = search_and_print_gadgets_64b;
 
     if ( ! parse_options(options, argc, argv) ) {
@@ -92,18 +94,30 @@ int main(int argc, char *const argv[]) {
             code_size = (size_t)st.st_size - rg_options.offset;
             search_and_print_gadgets(code, code_size, rg_options.depth, (Elf64_Addr)rg_options.base_address);
         } else {
-            ehdr = (const Elf64_Ehdr *)start_addr;
-            shstrtab = get_string_table_64b(ehdr);
-            s_idx = 0;
-            while ( (shdr = get_code_section_64b(ehdr, &s_idx)) != NULL ) {
-                fprintf(stderr, "Searching in section %s\n", &shstrtab[shdr->sh_name]);
-                code = get_section_data_64b(ehdr, shdr, &code_size);
-                search_and_print_gadgets(code, code_size, rg_options.depth, (Elf64_Addr)rg_options.base_address);
-                s_idx++;
+            CHK_NULL(bin = r_bin_new());
+            CHK_NULL(bin->iob.io = r_io_new());
+            CHK_FALSE(r_io_bind(bin->iob.io, &bin->iob));
+            bin->io_owned = true;
+            CHK_FALSE(r_bin_load_as(bin, argv[i], rg_options.base_address, 0, -1, -1, false, rg_options.offset, argv[i]));
+            CHK_NULL(info = r_bin_get_info(bin));
+            if ( info->bits != 64 || !info->arch || strcmp(info->arch, "x86") != 0 ) {
+                perror("Only x86_64 files are supported");
+            } else {
+                CHK_NULL(list = r_bin_get_sections(bin));
+                r_list_foreach(list, iter, section) {
+                    if ( ( section->srwx & 5 ) != 5 ) {
+                        continue;
+                    }
+                    fprintf(stderr, "Searching in section %s\n", section->name);
+                    code = (const uint8_t *)ADDR_OFFSET(start_addr, section->paddr);
+                    search_and_print_gadgets(code, section->size, rg_options.depth, (Elf64_Addr)section->vaddr);
+                }
             }
+            SAFE_RBIN_FREE(bin);
         }
 
         fail:
+        SAFE_RBIN_FREE(bin);
         SAFE_MUNMAP(addr, (size_t)st.st_size);
         SAFE_CLOSE(fd);
     }

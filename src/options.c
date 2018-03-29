@@ -2,9 +2,9 @@
 #include <getopt.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include <unistd.h>
 #include <string.h>
 #include <strings.h>
+#include <unistd.h>
 
 #include "check.h"
 #include "options.h"
@@ -51,6 +51,7 @@ bool parse_options(const struct prog_option_s *options, int argc, char *const ar
 		if ( IS_LAST_OPTIONS(po) ) {
 			return false;
 		} else {
+            optind += po->gnu_opt.has_arg;
 			if ( ! generic_parse(po->gnu_opt.has_arg == no_argument ? NULL : optarg, po) ) {
 				perror("Cannot get %s from \"%s\"", po->gnu_opt.name, optarg);
 				return false;
