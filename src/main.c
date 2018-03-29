@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 #include "check.h"
-#include "gadget64.h"
+#include "gadget.h"
 #include "options.h"
 #include "readelf64.h"
 #include "utils.h"
@@ -28,23 +28,29 @@ struct  {
     bool raw;
     size_t depth;
     bool color;
+    const char *arch;
+    int bits;
 } rg_options = {
     .help = false,
     .offset = 0UL,
     .base_address = 0UL,
     .raw = false,
     .depth = DEFAULT_DEPTH,
-    .color = false
+    .color = false,
+    .arch = "x86",
+    .bits = 64,
 };
-typedef void (*search_and_print_gadgets_t)(const uint8_t *, size_t, size_t, Elf64_Addr);
+typedef void (*search_and_print_gadgets_t)(const char *, int, const uint8_t *, size_t, size_t, size_t);
 
 const struct prog_option_s options[] = {
     { .gnu_opt = { "help",           no_argument,        NULL,   'h'},  .type = BOOL,   .value.b  = &rg_options.help            },
     { .gnu_opt = { "offset",         required_argument,  NULL,   'o'},  .type = ULONG,  .value.ul = &rg_options.offset          },
-    { .gnu_opt = { "base-address",   required_argument,  NULL,   'b'},  .type = ULONG,  .value.ul = &rg_options.base_address    },
+    { .gnu_opt = { "base-address",   required_argument,  NULL,   'B'},  .type = ULONG,  .value.ul = &rg_options.base_address    },
     { .gnu_opt = { "raw",            no_argument,        NULL,   'r'},  .type = BOOL,   .value.b  = &rg_options.raw             },
     { .gnu_opt = { "depth",          required_argument,  NULL,   'd'},  .type = ULONG,  .value.ul = &rg_options.depth           },
     { .gnu_opt = { "color",          no_argument,        NULL,   'c'},  .type = BOOL,   .value.b  = &rg_options.color           },
+    { .gnu_opt = { "arch",           required_argument,  NULL,   'a'},  .type = STRING, .value.s  = &rg_options.arch            },
+    { .gnu_opt = { "bits",           required_argument,  NULL,   'b'},  .type = INT,    .value.i  = &rg_options.bits            },
     { .gnu_opt = { NULL,             0,                  NULL,   0  },                                      },
 };
 
@@ -60,7 +66,7 @@ int main(int argc, char *const argv[]) {
     const RListIter *iter = NULL;
     const RBinSection *section = NULL;
     const RBinInfo *info = NULL;
-    search_and_print_gadgets_t search_and_print_gadgets = search_and_print_gadgets_64b;
+    search_and_print_gadgets_t sapg = search_and_print_gadgets;
 
     if ( ! parse_options(options, argc, argv) ) {
         usage(argv[0]);
@@ -71,7 +77,7 @@ int main(int argc, char *const argv[]) {
         return EXIT_SUCCESS;
     }
     if ( rg_options.color ) {
-        search_and_print_gadgets = search_and_print_color_gadgets_64b;
+        sapg = search_and_print_color_gadgets;
     }
     argv += (size_t)optind;
     argc -= optind;
@@ -92,7 +98,7 @@ int main(int argc, char *const argv[]) {
         if ( rg_options.raw ) {
             code = (const uint8_t *)start_addr;
             code_size = (size_t)st.st_size - rg_options.offset;
-            search_and_print_gadgets(code, code_size, rg_options.depth, (Elf64_Addr)rg_options.base_address);
+            sapg(rg_options.arch, rg_options.bits, code, code_size, rg_options.depth, (Elf64_Addr)rg_options.base_address);
         } else {
             CHK_NULL(bin = r_bin_new());
             CHK_NULL(bin->iob.io = r_io_new());
@@ -100,18 +106,14 @@ int main(int argc, char *const argv[]) {
             bin->io_owned = true;
             CHK_FALSE(r_bin_load_as(bin, argv[i], rg_options.base_address, 0, -1, -1, false, rg_options.offset, argv[i]));
             CHK_NULL(info = r_bin_get_info(bin));
-            if ( info->bits != 64 || !info->arch || strcmp(info->arch, "x86") != 0 ) {
-                perror("Only x86_64 files are supported");
-            } else {
-                CHK_NULL(list = r_bin_get_sections(bin));
-                r_list_foreach(list, iter, section) {
-                    if ( ( section->srwx & 5 ) != 5 ) {
-                        continue;
-                    }
-                    fprintf(stderr, "Searching in section %s\n", section->name);
-                    code = (const uint8_t *)ADDR_OFFSET(start_addr, section->paddr);
-                    search_and_print_gadgets(code, section->size, rg_options.depth, (Elf64_Addr)section->vaddr);
+            CHK_NULL(list = r_bin_get_sections(bin));
+            r_list_foreach(list, iter, section) {
+                if ( ( section->srwx & 5 ) != 5 ) {
+                    continue;
                 }
+                fprintf(stderr, "Searching in section %s\n", section->name);
+                code = (const uint8_t *)ADDR_OFFSET(start_addr, section->paddr);
+                sapg(info->arch, info->bits, code, section->size, rg_options.depth, (Elf64_Addr)section->vaddr);
             }
             SAFE_RBIN_FREE(bin);
         }
@@ -131,10 +133,12 @@ void usage(const char *progname) {
         "Usage : %s [OPTIONS] ELF [ELF2...]\n"
         "  -h, --help         : shows this message and exits.\n"
         "  -o, --offset       : start reading files at offset.\n"
-        "  -b, --base-address : set base adress for gadget printing.\n"
+        "  -B, --base-address : set base adress for gadget printing.\n"
         "  -r, --raw          : input files are not ELF, but raw code.\n"
         "  -d, --depth        : maximum gadget length (default is %lu).\n"
         "  -c, --color        : use color output.\n"
+        "  -a, --arch         : set arch for raw mode.\n"
+        "  -b, --bits         : set address width for raw mode.\n"
         "  ELF                : an ELF64 file.\n"
         , progname, DEFAULT_DEPTH
     );
