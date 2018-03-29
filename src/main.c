@@ -106,6 +106,7 @@ int main(int argc, char *const argv[]) {
             bin->io_owned = true;
             CHK_FALSE(r_bin_load_as(bin, argv[i], rg_options.base_address, 0, -1, -1, false, rg_options.offset, argv[i]));
             CHK_NULL(info = r_bin_get_info(bin));
+            fprintf(stderr, "Recognized %s for %s on system %s with \"%s\"\n", info->bclass, info->arch, info->os, argv[i]);
             CHK_NULL(list = r_bin_get_sections(bin));
             r_list_foreach(list, iter, section) {
                 if ( ( section->srwx & 5 ) != 5 ) {
