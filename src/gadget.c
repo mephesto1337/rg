@@ -55,7 +55,8 @@ void print_gadgets(const cs_insn *instrs, size_t count, size_t offset, void *dat
         if ( i > 0 ) {
             printf("; ");
         }
-        printf("%s%s%s %s%s%s", args->colors->mnemonic, instrs[i].mnemonic, args->colors->no_colors, args->colors->op_str, instrs[i].op_str, args->colors->no_colors);
+
+        printf("%s%s%s%s%s%s%s", args->colors->mnemonic, instrs[i].mnemonic, args->colors->no_colors, *instrs[i].op_str == '\0' ? "" : " ", args->colors->op_str, instrs[i].op_str, args->colors->no_colors);
     }
     printf("\n");
 }
