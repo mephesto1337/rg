@@ -76,6 +76,11 @@ int main(int argc, char *const argv[]) {
         usage(argv[0]);
         return EXIT_SUCCESS;
     }
+    if (argv[optind] == NULL) {
+        usage(argv[0]);
+        return EXIT_FAILURE;
+    }
+
     if ( rg_options.color ) {
         sapg = search_and_print_color_gadgets;
     }
