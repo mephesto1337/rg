@@ -136,16 +136,16 @@ int main(int argc, char *const argv[]) {
 void usage(const char *progname) {
     fprintf(
         stderr,
-        "Usage : %s [OPTIONS] ELF [ELF2...]\n"
+        "Usage : %s [OPTIONS] FILE [FILE2...]\n"
         "  -h, --help         : shows this message and exits.\n"
         "  -o, --offset       : start reading files at offset.\n"
         "  -B, --base-address : set base adress for gadget printing.\n"
-        "  -r, --raw          : input files are not ELF, but raw code.\n"
+        "  -r, --raw          : input files are not ELF/PE/etc, but raw code.\n"
         "  -d, --depth        : maximum gadget length (default is %lu).\n"
         "  -c, --color        : use color output.\n"
         "  -a, --arch         : set arch for raw mode.\n"
         "  -b, --bits         : set address width for raw mode.\n"
-        "  ELF                : an ELF64 file.\n"
+        "  FILE               : an executable file (like ELF, PE, anything radare2 supports).\n"
         , progname, DEFAULT_DEPTH
     );
 }
