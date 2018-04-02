@@ -119,7 +119,7 @@ int main(int argc, char *const argv[]) {
                 }
                 fprintf(stderr, "Searching in section %s\n", section->name);
                 code = (const uint8_t *)ADDR_OFFSET(start_addr, section->paddr);
-                sapg(info->arch, info->bits, code, section->size, rg_options.depth, (Elf64_Addr)section->vaddr);
+                sapg(info->arch, info->bits, code, section->size, rg_options.depth, (Elf64_Addr)(section->vaddr + rg_options.base_address));
             }
             SAFE_RBIN_FREE(bin);
         }
