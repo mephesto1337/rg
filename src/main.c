@@ -20,6 +20,7 @@
 #define DEFAULT_DEPTH 3UL
 
 void usage(const char *progname);
+int quiet_fprintf(FILE *stream, const char *format, ...) __attribute((format(printf, 2, 3)));
 
 struct  {
     bool help;
@@ -30,6 +31,7 @@ struct  {
     bool color;
     const char *arch;
     int bits;
+    bool quiet;
 } rg_options = {
     .help = false,
     .offset = 0UL,
@@ -39,6 +41,7 @@ struct  {
     .color = false,
     .arch = "x86",
     .bits = 64,
+    .quiet = false,
 };
 typedef void (*search_and_print_gadgets_t)(const char *, int, const uint8_t *, size_t, size_t, size_t);
 
@@ -51,6 +54,7 @@ const struct prog_option_s options[] = {
     { .gnu_opt = { "color",          no_argument,        NULL,   'c'},  .type = BOOL,   .value.b  = &rg_options.color           },
     { .gnu_opt = { "arch",           required_argument,  NULL,   'a'},  .type = STRING, .value.s  = &rg_options.arch            },
     { .gnu_opt = { "bits",           required_argument,  NULL,   'b'},  .type = INT,    .value.i  = &rg_options.bits            },
+    { .gnu_opt = { "quiet",          no_argument,        NULL,   'q'},  .type = BOOL,   .value.b  = &rg_options.quiet           },
     { .gnu_opt = { NULL,             0,                  NULL,   0  },                                      },
 };
 
@@ -111,13 +115,13 @@ int main(int argc, char *const argv[]) {
             bin->io_owned = true;
             CHK_FALSE(r_bin_load_as(bin, argv[i], rg_options.base_address, 0, -1, -1, false, rg_options.offset, argv[i]));
             CHK_NULL(info = r_bin_get_info(bin));
-            fprintf(stderr, "Recognized %s for %s on system %s with \"%s\"\n", info->bclass, info->arch, info->os, argv[i]);
+            quiet_fprintf(stderr, "Recognized %s for %s on system %s with \"%s\"\n", info->bclass, info->arch, info->os, argv[i]);
             CHK_NULL(list = r_bin_get_sections(bin));
             r_list_foreach(list, iter, section) {
                 if ( ( section->srwx & 5 ) != 5 ) {
                     continue;
                 }
-                fprintf(stderr, "Searching in section %s\n", section->name);
+                quiet_fprintf(stderr, "Searching in section %s\n", section->name);
                 code = (const uint8_t *)ADDR_OFFSET(start_addr, section->paddr);
                 sapg(info->arch, info->bits, code, section->size, rg_options.depth, (Elf64_Addr)(section->vaddr + rg_options.base_address));
             }
@@ -145,7 +149,20 @@ void usage(const char *progname) {
         "  -c, --color        : use color output.\n"
         "  -a, --arch         : set arch for raw mode.\n"
         "  -b, --bits         : set address width for raw mode.\n"
+        "  -q, --quiet        : be quiet.\n"
         "  FILE               : an executable file (like ELF, PE, anything radare2 supports).\n"
         , progname, DEFAULT_DEPTH
     );
+}
+
+inline int quiet_fprintf(FILE *stream, const char *format, ...) {
+    va_list args;
+    int ret = 0;
+
+    if ( ! rg_options.quiet ) {
+        va_start(args, format);
+        ret = vfprintf(stream, format, args);
+        va_end(args);
+    }
+    return ret;
 }
