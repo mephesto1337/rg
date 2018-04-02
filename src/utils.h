@@ -10,7 +10,7 @@
 #define ADDR_OFFSET(addr, off)  ((void *)((ssize_t)addr + (ssize_t)off))
 #define ARRAY_SIZE(array)       (sizeof(array) / sizeof(array[0]))
 #define __STRINGIFY(x)          #x
-#define STRINGIGY(x)            __STRINGIFY(x)
+#define STRINGIFY(x)            __STRINGIFY(x)
 
 #define SAFE_XXX(func, handle, nullval, ...)    \
     do { \

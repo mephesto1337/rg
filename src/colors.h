@@ -3,7 +3,7 @@
 
 #include "utils.h"
 
-#define PRINTF_COLOR(x)     "\033[0;1;" STRINGIGY(x) "m"
+#define PRINTF_COLOR(x)     "\033[0;1;" STRINGIFY(x) "m"
 #define PRINTF_COLOR_WHITE  "\033[0;1m"
 #define PRINTF_COLOR_RED    PRINTF_COLOR(31)
 #define PRINTF_COLOR_GREEN  PRINTF_COLOR(32)
