@@ -1,0 +1,9 @@
+o Add a -u option to suppress duplicate gadgets.
+o Restrict the jmp gadgets to "jmp [reg]" (remove "jmp addr" gadets).
+o Add arch example in usage output ("x86_64", "x86_32", etc.).
+o Add prefix "0x" to addresses (better for copy/paste in python scripts).
+o On Debian, if r2 installed but package libcapstone-dev isn't installed,
+  rg Makefile can't find the "<capstone/capstone.h>" include file.
+  # find / -name capstone.h
+  /opt/radare2/shlr/capstone/include/capstone/capstone.h
+

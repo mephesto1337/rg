@@ -9,8 +9,9 @@ RAW formats as input files.
 
 ## Installation
 
-RG requires [radare2](https://github.com/radare/radare2) libraries, so
-install [radare2](https://github.com/radare/radare2) first with:
+RG requires [radare2](https://github.com/radare/radare2) libraries in order
+to support a wide range of executable file.  So install
+[radare2](https://github.com/radare/radare2) first with:
 
     git clone --depth 1 https://github.com/radare/radare2
     cd radare2
@@ -27,16 +28,17 @@ Here is the usage output:
 
 ```
 $ ./rg
-Usage : ./rg [OPTIONS] ELF [ELF2...]
+Usage : ./rg [OPTIONS] FILE [FILE2...]
   -h, --help         : shows this message and exits.
   -o, --offset       : start reading files at offset.
   -B, --base-address : set base adress for gadget printing.
-  -r, --raw          : input files are not ELF, but raw code.
+  -r, --raw          : input files are not ELF/PE/etc, but raw code.
   -d, --depth        : maximum gadget length (default is 3).
   -c, --color        : use color output.
   -a, --arch         : set arch for raw mode.
   -b, --bits         : set address width for raw mode.
-  ELF                : an ELF64 file.
+  -q, --quiet        : be quiet.
+  FILE               : an executable file (like ELF, PE, anything radare2 supports).
 ```
 
 ## Examples
@@ -59,7 +61,9 @@ If the binary is compiled as a shared object, you can specify a *base
 address*:
 
 ```sh
-$ ./rg -B 0x555555554000 /bin/true
+$ ./rg -q -B 0x555555554000 /bin/true
+5555555552b0: call rax
+5555555552b2: add rsp, 8; ret
 [...]
 ```
 
