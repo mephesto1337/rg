@@ -8,7 +8,9 @@
 
 #include "check.h"
 #include "options.h"
+#include "utils.h"
 
+#define OPTION_BUFFER_SIZE      128
 #define IS_LAST_OPTIONS(opt)	\
 	( (opt)->gnu_opt.name == NULL && (opt)->gnu_opt.has_arg == 0 && (opt)->gnu_opt.flag == NULL && (opt)->gnu_opt.val == 0 )
 
@@ -17,15 +19,16 @@ bool generic_parse(const char *s, const struct prog_option_s *po);
 bool parse_options(const struct prog_option_s *options, int argc, char *const argv[]) {
 	int n;
 	bool use_short_opt;
-	char short_opt;
-	char long_opt[128];
+	char long_opt[OPTION_BUFFER_SIZE];
+	char *short_opt = &long_opt[0];
 	const struct prog_option_s *po = NULL;
 
 	for ( optind = 1; optind < argc; optind++ ) {
-		if ( sscanf(argv[optind], "-%[0-9a-zA-Z]", &short_opt) == 1 ) {
+		if ( sscanf(argv[optind], "-%" STRINGIFY(OPTION_BUFFER_SIZE) "[0-9a-zA-Z]", long_opt) == 1 ) {
 			use_short_opt = true;
+            short_opt = &long_opt[0];
 			optarg = argv[optind + 1];
-		} else if ( (n = sscanf(argv[optind], "--%[^=]%*[=]", long_opt)) > 0 ) {
+		} else if ( (n = sscanf(argv[optind], "--%" STRINGIFY(OPTION_BUFFER_SIZE) "[^=]%*[=]", long_opt)) > 0 ) {
 			use_short_opt = false;
 			if ( n == 1 ) {
 				optarg = argv[optind + 1];
@@ -38,16 +41,21 @@ bool parse_options(const struct prog_option_s *options, int argc, char *const ar
 
 		for ( po = options; ! IS_LAST_OPTIONS(po); po++ ) {
 			if ( use_short_opt ) {
-				if ( po->gnu_opt.val == short_opt ) {
-					break;
-				}
+                short_opt = &long_opt[0];
+                while ( *short_opt ) {
+                    if ( po->gnu_opt.val == *short_opt ) {
+                        goto found_option;
+                    }
+                    short_opt++;
+                 }
 			} else {
 				if ( strcmp(po->gnu_opt.name, long_opt) == 0 ) {
-					break;
+                    goto found_option;
 				}
 			}
 		}
 
+        found_option:
 		if ( IS_LAST_OPTIONS(po) ) {
 			return false;
 		} else {
