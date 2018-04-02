@@ -34,5 +34,8 @@ endif
 obj/%.o : src/%.c
 	$(CC) $(CPPFLAGS) $(CFLAGS) -o $@ -c $<
 
+install:
+	install -m 755 $(BIN) /usr/local/bin/
+
 clean :
 	rm -f $(OBJ) $(BIN)
