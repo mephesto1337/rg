@@ -45,7 +45,7 @@ struct  {
     size_t base_address;
     bool raw;
     size_t depth;
-    bool color;
+    const char *color;
     const char *arch;
     int bits;
     bool quiet;
@@ -55,7 +55,7 @@ struct  {
     .base_address = 0UL,
     .raw = false,
     .depth = DEFAULT_DEPTH,
-    .color = false,
+    .color = "auto",
     .arch = "x86",
     .bits = 64,
     .quiet = false,
@@ -68,7 +68,7 @@ const struct prog_option_s options[] = {
     { .gnu_opt = { "base-address",   required_argument,  NULL,   'B'},  .type = ULONG,  .value.ul = &rg_options.base_address    },
     { .gnu_opt = { "raw",            no_argument,        NULL,   'r'},  .type = BOOL,   .value.b  = &rg_options.raw             },
     { .gnu_opt = { "depth",          required_argument,  NULL,   'd'},  .type = ULONG,  .value.ul = &rg_options.depth           },
-    { .gnu_opt = { "color",          no_argument,        NULL,   'c'},  .type = BOOL,   .value.b  = &rg_options.color           },
+    { .gnu_opt = { "color",          required_argument,  NULL,   'c'},  .type = STRING, .value.s  = &rg_options.color           },
     { .gnu_opt = { "arch",           required_argument,  NULL,   'a'},  .type = STRING, .value.s  = &rg_options.arch            },
     { .gnu_opt = { "bits",           required_argument,  NULL,   'b'},  .type = INT,    .value.i  = &rg_options.bits            },
     { .gnu_opt = { "quiet",          no_argument,        NULL,   'q'},  .type = BOOL,   .value.b  = &rg_options.quiet           },
@@ -102,8 +102,12 @@ int main(int argc, char *const argv[]) {
         return EXIT_FAILURE;
     }
 
-    if ( rg_options.color || isatty(STDOUT_FILENO) == 1 ) {
+    if ( strcmp(rg_options.color, "auto") == 0 && isatty(STDOUT_FILENO) == 1 ) {
         sapg = search_and_print_color_gadgets;
+    } else if ( strcmp(rg_options.color, "always") == 0 ) {
+        sapg = search_and_print_color_gadgets;
+    } else {
+        sapg = search_and_print_gadgets;
     }
     argv += (size_t)optind;
     argc -= optind;
@@ -170,7 +174,7 @@ void usage(const char *progname) {
         "  -B, --base-address : set base adress for gadget printing.\n"
         "  -r, --raw          : input files are not ELF/PE/etc, but raw code.\n"
         "  -d, --depth        : maximum gadget length (default is %lu).\n"
-        "  -c, --color        : use color output.\n"
+        "  -c, --color        : Use color : auto (yes if stdout is a TTY), always, never.\n"
         "  -a, --arch         : set arch for raw mode.\n"
         "  -b, --bits         : set address width for raw mode.\n"
         "  -q, --quiet        : be quiet.\n"
