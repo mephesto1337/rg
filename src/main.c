@@ -79,7 +79,7 @@ int main(int argc, char *const argv[]) {
     struct stat st;
     int fd = -1;
     void *addr = MAP_FAILED;
-    void *start_addr = NULL; 
+    void *start_addr = NULL;
     const uint8_t *code = NULL;
     size_t code_size = 0;
     RBin *bin = NULL;

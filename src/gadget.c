@@ -59,7 +59,7 @@ void generic_search_gadgets(const char *arch, int bits, const uint8_t *code, siz
             }
         }
     }
-    
+
     cs_close(&cs_handle);
     fail:
     return;
@@ -98,7 +98,7 @@ void search_and_print_color_gadgets(const char *arch, int bits, const uint8_t *c
 inline bool is_valid_gadget(const struct gadget_end_s *gadget_ends, const cs_insn *instrs, size_t count_before) {
     for ( const struct gadget_end_s *g = gadget_ends; g->mnemonic != NULL; g++ ) {
         if (    count_before >= g->previous &&
-                instrs->size == g->size && 
+                instrs->size == g->size &&
                 memcmp(instrs->bytes, g->opcodes, g->match_size) == 0 &&
                 strncmp(instrs->mnemonic, g->mnemonic, sizeof(g->mnemonic) - 1) == 0
             ) {

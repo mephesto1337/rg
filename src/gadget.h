@@ -51,8 +51,8 @@ static const struct gadget_end_s gadget_x86_32_ends[] = {
     { .mnemonic = "ret",        .size = 3,  .previous = 1,  .match_size = 1,    .opcodes = { 0xc3 },        },
     { .mnemonic = "call",       .size = 5,  .previous = 0,  .match_size = 1,    .opcodes = { 0xe8 },        },
     { .mnemonic = "jmp",        .size = 5,  .previous = 0,  .match_size = 1,    .opcodes = { 0xe9 },        },
-    { .mnemonic = "int",        .size = 2,  .previous = 0,  .match_size = 2,    .opcodes = { 0xcd, 0x80 }   },   
-    { .mnemonic = "call",       .size = 2,  .previous = 0,  .match_size = 1,    .opcodes = { 0xff },        },   
+    { .mnemonic = "int",        .size = 2,  .previous = 0,  .match_size = 2,    .opcodes = { 0xcd, 0x80 }   },
+    { .mnemonic = "call",       .size = 2,  .previous = 0,  .match_size = 1,    .opcodes = { 0xff },        },
     { .mnemonic = NULL,         .size = 0,  .previous = 0,  .match_size = 0,    .opcodes = { 0x00 },        },
 };
 
@@ -61,9 +61,9 @@ static const struct gadget_end_s gadget_x86_64_ends[] = {
     { .mnemonic = "ret",        .size = 3,  .previous = 1,  .match_size = 1,    .opcodes = { 0xc3 },        },
     { .mnemonic = "call",       .size = 5,  .previous = 0,  .match_size = 1,    .opcodes = { 0xe8 },        },
     { .mnemonic = "jmp",        .size = 5,  .previous = 0,  .match_size = 1,    .opcodes = { 0xe9 },        },
-    { .mnemonic = "syscall",    .size = 2,  .previous = 0,  .match_size = 2,    .opcodes = { 0x0f, 0x05 }   },   
-    { .mnemonic = "call",       .size = 2,  .previous = 0,  .match_size = 1,    .opcodes = { 0xff },        },   
-    { .mnemonic = "call",       .size = 3,  .previous = 0,  .match_size = 2,    .opcodes = { 0x41, 0xff },  },   
+    { .mnemonic = "syscall",    .size = 2,  .previous = 0,  .match_size = 2,    .opcodes = { 0x0f, 0x05 }   },
+    { .mnemonic = "call",       .size = 2,  .previous = 0,  .match_size = 1,    .opcodes = { 0xff },        },
+    { .mnemonic = "call",       .size = 3,  .previous = 0,  .match_size = 2,    .opcodes = { 0x41, 0xff },  },
     { .mnemonic = NULL,         .size = 0,  .previous = 0,  .match_size = 0,    .opcodes = { 0x00 },        },
 };
 
