@@ -18,7 +18,7 @@ ifneq ($(DEBUG), 0)
 	CPPFLAGS += -DDDEBUG
 	CFLAGS += -g -O0
 else
-	CFLAGS += -O2
+	CFLAGS += -O3
 endif
 
 .PHONY : all clean
