@@ -102,7 +102,7 @@ int main(int argc, char *const argv[]) {
         return EXIT_FAILURE;
     }
 
-    if ( rg_options.color ) {
+    if ( rg_options.color || isatty(STDOUT_FILENO) == 1 ) {
         sapg = search_and_print_color_gadgets;
     }
     argv += (size_t)optind;
