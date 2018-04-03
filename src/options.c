@@ -91,7 +91,7 @@ bool parse_options(const struct prog_option_s *options, int argc, char *const ar
 bool parse_bool(const char *s, const struct prog_option_s *po) {
 	assert ( po->type == BOOL );
 	if ( s == NULL ) {
-		*po->value.b = ! *po->value.b;
+		*po->value.b = true;
 		return true;
 	} else {
 		int i;
