@@ -32,7 +32,6 @@
 #include "check.h"
 #include "gadget.h"
 #include "options.h"
-#include "readelf64.h"
 #include "utils.h"
 
 #define DEFAULT_DEPTH 3UL
