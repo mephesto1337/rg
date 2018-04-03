@@ -132,15 +132,22 @@ int main(int argc, char *const argv[]) {
             bin->io_owned = true;
             CHK_FALSE(r_bin_load_as(bin, argv[i], rg_options.base_address, 0, -1, -1, false, rg_options.offset, argv[i]));
             CHK_NULL(info = r_bin_get_info(bin));
-            quiet_fprintf(stderr, "Recognized %s for %s on system %s with \"%s\"\n", info->bclass, info->arch, info->os, argv[i]);
-            CHK_NULL(list = r_bin_get_sections(bin));
-            r_list_foreach(list, iter, section) {
-                if ( ( section->srwx & 5 ) != 5 ) {
-                    continue;
+            if ( info->type == NULL ) {
+                quiet_fprintf(stderr, "Did not recognized anythind, using raw mode\n");
+                code = (const uint8_t *)start_addr;
+                code_size = (size_t)st.st_size - rg_options.offset;
+                sapg(rg_options.arch, rg_options.bits, code, code_size, rg_options.depth, (Elf64_Addr)rg_options.base_address);
+            } else {
+                quiet_fprintf(stderr, "Recognized %s for %s on system %s with \"%s\"\n", info->bclass, info->arch, info->os, argv[i]);
+                CHK_NULL(list = r_bin_get_sections(bin));
+                r_list_foreach(list, iter, section) {
+                    if ( ( section->srwx & 5 ) != 5 ) {
+                        continue;
+                    }
+                    quiet_fprintf(stderr, "Searching in section %s\n", section->name);
+                    code = (const uint8_t *)ADDR_OFFSET(start_addr, section->paddr);
+                    sapg(info->arch, info->bits, code, section->size, rg_options.depth, (Elf64_Addr)(section->vaddr + rg_options.base_address));
                 }
-                quiet_fprintf(stderr, "Searching in section %s\n", section->name);
-                code = (const uint8_t *)ADDR_OFFSET(start_addr, section->paddr);
-                sapg(info->arch, info->bits, code, section->size, rg_options.depth, (Elf64_Addr)(section->vaddr + rg_options.base_address));
             }
             SAFE_RBIN_FREE(bin);
         }
