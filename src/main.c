@@ -145,7 +145,7 @@ int main(int argc, char *const argv[]) {
                 quiet_fprintf(stderr, "Recognized %s for %s on system %s with \"%s\"\n", info->bclass, info->arch, info->os, argv[i]);
                 CHK_NULL(list = r_bin_get_sections(bin));
                 r_list_foreach(list, iter, section) {
-                    if ( ( section->srwx & 5 ) != 5 ) {
+                    if ( ( section->perm & 5 ) != 5 ) {
                         continue;
                     }
                     quiet_fprintf(stderr, "Searching in section %s\n", section->name);
