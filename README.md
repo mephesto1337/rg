@@ -9,17 +9,20 @@ RAW formats as input files.
 
 ## Installation
 
-RG requires [radare2](https://github.com/radare/radare2) libraries, so
-install [radare2](https://github.com/radare/radare2) first with:
+RG requires [rust](https://www.rust-lang.org/fr-FR/install.html), and some
+parsers implementing the [exe trait](https://github.com/mephesto1337/exe) :
 
-    git clone --depth 1 https://github.com/radare/radare2
-    cd radare2
-    ./sys/install.sh
+	- [elf](https://github.com/mephesto1337/elf)
+	- [pe](https://github.com/mephesto1337/pe)
 
-Then clone this repository and type:
 
-    make
-    make install
+Then you are good to go !
+
+    mkdir rust && cd rust
+    git clone https://github.com/mephesto1337/elf
+    git clone https://github.com/mephesto1337/pe
+	cd ..
+	make
 
 ## Usage
 
