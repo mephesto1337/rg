@@ -58,6 +58,7 @@ void generic_search_gadgets(const char *arch, int bits, const uint8_t *code, siz
                 break;
             }
         }
+		cs_free(instrs, len);
     }
 
     cs_close(&cs_handle);
