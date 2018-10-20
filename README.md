@@ -11,8 +11,9 @@ RAW formats as input files.
 
 RG requires [rust](https://www.rust-lang.org/fr-FR/install.html), and some
 parsers implementing the [exe trait](https://github.com/mephesto1337/exe) :
-	- [elf](https://github.com/mephesto1337/elf)
-	- [pe](https://github.com/mephesto1337/pe)
+
+- [elf](https://github.com/mephesto1337/elf)
+- [pe](https://github.com/mephesto1337/pe)
 
 Then you are good to go !
 
