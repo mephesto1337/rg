@@ -20,7 +20,6 @@
 #define __UTILS_H__
 
 #include <capstone/capstone.h>
-#include <libr/r_bin.h>
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <unistd.h>
@@ -41,6 +40,5 @@
 #define SAFE_MUNMAP(ptr, size)  SAFE_XXX(munmap, ptr, MAP_FAILED, size)
 #define SAFE_CLOSE(handle)      SAFE_XXX(close, handle, -1)
 #define SAFE_FREE(ptr)          SAFE_XXX(free, ptr, NULL)
-#define SAFE_RBIN_FREE(ptr)     SAFE_XXX(r_bin_free, ptr, NULL)
 
 #endif // __UTILS_H__

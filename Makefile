@@ -6,11 +6,11 @@ CARGO_FLAGS=
 CARGO_TARGET_DIR=
 RUST_LIB_NAMES=pe elf
 RUST_ROOT_DIR=rust
-CPPFLAGS += $(RUST_ROOT_DIR)/exe/ressources
+CPPFLAGS += -I$(RUST_ROOT_DIR)/exe/ressources
 
 LD=gcc
 LDFLAGS=
-LIBS=-lcapstone
+LIBS=-lcapstone -ldl -lpthread
 
 SRC=$(wildcard src/*.c)
 OBJ=$(SRC:src/%.c=obj/%.o)
@@ -21,7 +21,7 @@ _X := $(shell mkdir -p obj)
 DEBUG ?= 0
 
 ifneq ($(DEBUG), 0)
-	CPPFLAGS += -DDDEBUG
+	CPPFLAGS += -DDEBUG
 	CFLAGS += -g -O0
 	CARGO_TARGET_DIR=debug
 else
@@ -43,7 +43,7 @@ ifeq ($(DEBUG), 0)
 endif
 
 %.a :
-	cd $(RUST_ROOT_DIR)/$(shell basename $@ | sed -re 's/^lib//; s/[.]a$$//')
+	cd $(RUST_ROOT_DIR)/$(shell basename $@ | sed -re 's/^lib//; s/[.]a$$//') && \
 	cargo build $(CARGO_FLAGS)
 
 obj/%.o : src/%.c

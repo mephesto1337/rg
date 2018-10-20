@@ -19,7 +19,6 @@
 #include <elf.h>
 #include <fcntl.h>
 #include <getopt.h>
-#include <libr/r_bin.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,11 +32,16 @@
 #include "gadget.h"
 #include "options.h"
 #include "utils.h"
+#include "exe_c_api.h"
+GENERATE_BINDINGS(rs_pe);
+GENERATE_BINDINGS(rs_elf32);
+GENERATE_BINDINGS(rs_elf64);
 
 #define DEFAULT_DEPTH 3UL
 
 void usage(const char *progname);
 int quiet_fprintf(FILE *stream, const char *format, ...) __attribute((format(printf, 2, 3)));
+const rs_parse_t parsers[] = { rs_pe_parse_helper, rs_elf32_parse_helper, rs_elf64_parse_helper, NULL };
 
 struct  {
     bool help;
@@ -82,11 +86,10 @@ int main(int argc, char *const argv[]) {
     void *start_addr = NULL;
     const uint8_t *code = NULL;
     size_t code_size = 0;
-    RBin *bin = NULL;
-    const RList *list = NULL;
-    const RListIter *iter = NULL;
-    const RBinSection *section = NULL;
-    const RBinInfo *info = NULL;
+    rs_object_t obj = { NULL, NULL };
+    rs_section_t *section = NULL;
+    rs_info_t *info = NULL;
+    size_t nsections;
     search_and_print_gadgets_t sapg = search_and_print_gadgets;
 
     if ( ! parse_options(options, argc, argv) ) {
@@ -130,34 +133,37 @@ int main(int argc, char *const argv[]) {
             code_size = (size_t)st.st_size - rg_options.offset;
             sapg(rg_options.arch, rg_options.bits, code, code_size, rg_options.depth, (Elf64_Addr)rg_options.base_address);
         } else {
-            CHK_NULL(bin = r_bin_new());
-            CHK_NULL(bin->iob.io = r_io_new());
-            CHK_FALSE(r_io_bind(bin->iob.io, &bin->iob));
-            bin->io_owned = true;
-            CHK_FALSE(r_bin_load_as(bin, argv[i], rg_options.base_address, 0, -1, -1, false, rg_options.offset, argv[i]));
-            CHK_NULL(info = r_bin_get_info(bin));
-            if ( info->type == NULL ) {
+            obj.handle = NULL;
+            for ( size_t idx = 0; parsers[idx] != NULL; idx++ ) {
+                if ( parsers[idx](&obj, (const uint8_t *)start_addr, st.st_size - rg_options.offset) ) {
+                    break;
+                }
+            }
+            if ( obj.handle == NULL ) {
                 quiet_fprintf(stderr, "Did not recognized anythind, using raw mode\n");
                 code = (const uint8_t *)start_addr;
                 code_size = (size_t)st.st_size - rg_options.offset;
                 sapg(rg_options.arch, rg_options.bits, code, code_size, rg_options.depth, (Elf64_Addr)rg_options.base_address);
+                goto fail;
             } else {
-                quiet_fprintf(stderr, "Recognized %s for %s on system %s with \"%s\"\n", info->bclass, info->arch, info->os, argv[i]);
-                CHK_NULL(list = r_bin_get_sections(bin));
-                r_list_foreach(list, iter, section) {
-                    if ( ( section->srwx & 5 ) != 5 ) {
+                info = obj.ops->get_info(obj.handle);
+                quiet_fprintf(stderr, "Recognized %s on system %s with \"%s\"\n", info->arch, info->os, argv[i]);
+                nsections = obj.ops->get_number_of_sections(obj.handle);
+                for ( size_t idx = 0; idx < nsections; idx++ ) {
+                    CHK_NULL(section = obj.ops->get_section_at(obj.handle, idx));
+                    if ( (section->flags & 5U) != 5U ) {
                         continue;
                     }
                     quiet_fprintf(stderr, "Searching in section %s\n", section->name);
                     code = (const uint8_t *)ADDR_OFFSET(start_addr, section->paddr);
                     sapg(info->arch, info->bits, code, section->size, rg_options.depth, (Elf64_Addr)(section->vaddr + rg_options.base_address));
+                    obj.ops->free_section(section);
                 }
             }
-            SAFE_RBIN_FREE(bin);
+            obj.ops->free_exe(obj.handle);
         }
 
         fail:
-        SAFE_RBIN_FREE(bin);
         SAFE_MUNMAP(addr, (size_t)st.st_size);
         SAFE_CLOSE(fd);
     }
