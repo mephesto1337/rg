@@ -12,17 +12,16 @@ RAW formats as input files.
 RG requires [rust](https://www.rust-lang.org/fr-FR/install.html), and some
 parsers implementing the [exe trait](https://github.com/mephesto1337/exe) :
 
-	- [elf](https://github.com/mephesto1337/elf)
-	- [pe](https://github.com/mephesto1337/pe)
-
+- [elf](https://github.com/mephesto1337/elf)
+- [pe](https://github.com/mephesto1337/pe)
 
 Then you are good to go !
 
     mkdir rust && cd rust
     git clone https://github.com/mephesto1337/elf
     git clone https://github.com/mephesto1337/pe
-	cd ..
-	make
+    cd ..
+    make
 
 ## Usage
 
@@ -49,7 +48,7 @@ To extract "``pop rdi``" gadgets from an ELF (*/bin/true*):
 
 ```sh
 $ rg /bin/true | grep "pop rdi"
-Recognized ELF64 for x86 on system linux with "/bin/true"
+Recognized x86 on system linux with "/bin/true"
 Searching in section .init
 Searching in section .text
 2643: pop rdi; ret
@@ -62,7 +61,7 @@ address*:
 
 ```sh
 $ rg -B 0x555555554000 /bin/true
-Recognized ELF64 for x86 on system linux with "/bin/true"
+Recognized x86 on system linux with "/bin/true"
 Searching in section .init
 Searching in section .text
 55555555529b: test rax, rax; je 7; call rax
