@@ -10,16 +10,17 @@ RAW formats as input files.
 ## Installation
 
 RG requires [rust](https://www.rust-lang.org/fr-FR/install.html), and some
-parsers implementing the [exe trait](https://github.com/mephesto1337/exe) :
+parsers implementing the [exe trait](https://github.com/mephesto1337/exe-rs) :
 
-- [elf](https://github.com/mephesto1337/elf)
-- [pe](https://github.com/mephesto1337/pe)
+- [elf](https://github.com/mephesto1337/elf-parser)
+- [pe](https://github.com/mephesto1337/pe-parser)
 
 Then you are good to go !
 
     mkdir rust && cd rust
-    git clone https://github.com/mephesto1337/elf
-    git clone https://github.com/mephesto1337/pe
+    git clone https://github.com/mephesto1337/elf-parser elf
+    git clone https://github.com/mephesto1337/pe-parser pe
+    git clone https://github.com/mephesto1337/exe-rs exe
     cd ..
     make
 
