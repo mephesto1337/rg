@@ -12,7 +12,7 @@ RAW formats as input files.
 RG requires [radare2](https://github.com/radare/radare2) libraries, so
 install [radare2](https://github.com/radare/radare2) first with:
 
-    git clone --depth 1 https://github.com/radare/radare2
+    git clone --depth 1 -b 3.0.0 https://github.com/radare/radare2
     cd radare2
     ./sys/install.sh
 
