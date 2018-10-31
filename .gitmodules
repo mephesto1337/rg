@@ -1,0 +1,12 @@
+[submodule "rust/elf"]
+	path = rust/elf
+	url = https://github.com/mephesto1337/elf-parser.git
+	branch = master
+[submodule "rust/pe"]
+	path = rust/pe
+	url = https://github.com/mephesto1337/pe-parser.git
+	branch = master
+[submodule "rust/exe"]
+	path = rust/exe
+	url = https://github.com/mephesto1337/exe-rs.git
+	branch = master
