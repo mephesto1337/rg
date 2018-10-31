@@ -54,3 +54,6 @@ install:
 
 clean :
 	rm -f $(OBJ) $(BIN)
+	for lib in $(RUST_LIB_NAMES); do \
+		cargo clean --manifest-path=$(RUST_ROOT_DIR)/$$lib/Cargo.toml; \
+	done
