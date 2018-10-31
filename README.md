@@ -21,7 +21,7 @@ Then you are good to go !
 
 or
 
-    git clone -b rust https://github.com/mephesto1337/rg
+    git clone -b rust https://github.com/mephesto1337/rg && cd rg
     git submodule init
     git submodule update --remote
 
