@@ -17,12 +17,13 @@ parsers implementing the [exe trait](https://github.com/mephesto1337/exe-rs) :
 
 Then you are good to go !
 
-    mkdir rust && cd rust
-    git clone https://github.com/mephesto1337/elf-parser elf
-    git clone https://github.com/mephesto1337/pe-parser pe
-    git clone https://github.com/mephesto1337/exe-rs exe
-    cd ..
-    make
+    git clone -b rust --recurse https://github.com/mephesto1337/rg
+
+or
+
+    git clone -b rust https://github.com/mephesto1337/rg
+    git submodule init
+    git submodule update --remote
 
 ## Usage
 
