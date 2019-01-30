@@ -40,7 +40,7 @@ GENERATE_BINDINGS(rs_elf64);
 #define DEFAULT_DEPTH 3UL
 
 void usage(const char *progname);
-int quiet_fprintf(FILE *stream, const char *format, ...) __attribute((format(printf, 2, 3)));
+int quiet_fprintf(FILE *stream, const char *format, ...) __attribute__((format(printf, 2, 3)));
 const rs_parse_t parsers[] = { rs_pe_parse_helper, rs_elf32_parse_helper, rs_elf64_parse_helper, NULL };
 
 struct  {
@@ -152,6 +152,7 @@ int main(int argc, char *const argv[]) {
                 for ( size_t idx = 0; idx < nsections; idx++ ) {
                     CHK_NULL(section = obj.ops->get_section_at(obj.handle, idx));
                     if ( (section->flags & 5U) != 5U ) {
+                        obj.ops->free_section(section);
                         continue;
                     }
                     quiet_fprintf(stderr, "Searching in section %s\n", section->name);
@@ -159,6 +160,7 @@ int main(int argc, char *const argv[]) {
                     sapg(info->arch, info->bits, code, section->size, rg_options.depth, (Elf64_Addr)(section->vaddr + rg_options.base_address));
                     obj.ops->free_section(section);
                 }
+                obj.ops->free_info(info);
             }
             obj.ops->free_exe(obj.handle);
         }
